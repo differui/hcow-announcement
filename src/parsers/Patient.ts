@@ -79,7 +79,7 @@ export class Patient {
     const unknownWuHan = fragment.match(/无武汉旅居史/);
     const fromOutside = fragment.match(/回温/);
     const hasContactFromWuHan = fragment.match(/与武汉回温人员有接触史/);
-    const hasContactPatient = fragment.match(/与确诊病例有接触史/);
+    const hasContactPatient = fragment.match(/与确诊病例有(密切)?接触史/);
 
     this.age = age ? this.parseAge(age[1]) : undefined;
     this.gender = gender ? this.parseGender(gender[1]) : undefined;

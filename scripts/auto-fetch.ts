@@ -90,6 +90,9 @@ async function main() {
     resolvePath(cwd, 'dist/summary.json'),
     JSON.stringify(announcements)
   );
+
+  process.stdout.write(`job finished at ${new Date().toLocaleString()}`);
 }
 
 scheduleJob(PER_HOUR, main);
+main();
