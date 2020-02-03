@@ -1,4 +1,6 @@
-export class Statistics {
+import { Collector } from '../type';
+
+export class Statistics extends Collector {
   private date: Date;
   private confirmedCount = 0;
   private curedCount = 0;
@@ -56,6 +58,10 @@ export class Statistics {
       this.newSevereCount = this.parseCount(newSevereCount[1]);
     if (newConfirmedCount)
       this.newConfirmedCount = this.parseCount(newConfirmedCount[1]);
+  }
+
+  public validate() {
+    return '';
   }
 
   public toJS() {

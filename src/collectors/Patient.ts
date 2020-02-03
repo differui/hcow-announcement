@@ -1,6 +1,7 @@
 import { Region, Gender } from '../enums';
+import { Collector } from '../type';
 
-export class Patient {
+export class Patient extends Collector {
   private name: string;
   private age: number;
   private gender?: Gender;
@@ -12,8 +13,6 @@ export class Patient {
   private fromOutside: boolean;
   private hasContactFromWuHan: boolean;
   private hasContactPatient: boolean;
-
-  constructor() {}
 
   private parseAge(fragment: string) {
     return parseInt(fragment) || undefined;
@@ -96,7 +95,9 @@ export class Patient {
     this.hasContactPatient = !!hasContactPatient;
   }
 
-  public validate() {}
+  public validate() {
+    return '';
+  }
 
   public toJS() {
     return {

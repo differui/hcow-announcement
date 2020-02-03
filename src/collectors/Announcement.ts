@@ -1,7 +1,8 @@
 import { Patient } from './Patient';
 import { Statistics } from './Statistics';
+import { Collector } from '../type';
 
-export class Announcement {
+export class Announcement extends Collector {
   private patients: Patient[] = [];
   private stastistic: Statistics = new Statistics();
 

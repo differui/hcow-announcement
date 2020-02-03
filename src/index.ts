@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve as resolvePath } from 'path';
-import { Announcement } from './parsers/Announcement';
+import { Announcement } from './collectors/Announcement';
 
 async function main() {
   const cwd = process.cwd();

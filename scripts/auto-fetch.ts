@@ -3,7 +3,7 @@ import { resolve as resolvePath } from 'path';
 import { get } from 'http';
 import { load } from 'cheerio';
 import { scheduleJob } from 'node-schedule';
-import { Announcement } from '../src/parsers/Announcement';
+import { Announcement } from '../src/collectors/Announcement';
 
 const PER_MINUTE = '30 * * * * *';
 const PER_HOUR = '30 1 * * * *';
