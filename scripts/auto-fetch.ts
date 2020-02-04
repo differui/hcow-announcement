@@ -81,7 +81,7 @@ async function main() {
       ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
       announcements.push(announcement);
-      writeFileSync(resolvePath(cwd, `src/assets/${name}`), content);
+      writeFileSync(resolvePath(cwd, `assets/${name}`), content);
       writeFileSync(resolvePath(cwd, `dist/${name}.json`), JSON.stringify(js));
     }
   }

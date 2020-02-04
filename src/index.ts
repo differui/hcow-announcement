@@ -4,9 +4,9 @@ import { Announcement } from './collectors/Announcement';
 
 async function main() {
   const cwd = process.cwd();
-  const fileNames = readdirSync(resolvePath(cwd, 'src/assets/'));
+  const fileNames = readdirSync(resolvePath(cwd, 'assets/'));
   const files = fileNames.map(name =>
-    readFileSync(resolvePath(cwd, `src/assets/${name}`)).toString('utf-8')
+    readFileSync(resolvePath(cwd, `assets/${name}`)).toString('utf-8')
   );
 
   const announcements = files.map(content => {
