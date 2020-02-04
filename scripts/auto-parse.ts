@@ -28,7 +28,10 @@ async function main() {
     const name = `${date.getFullYear()}-${date.getMonth() +
       1}-${date.getDate()}`;
 
-    writeFileSync(resolvePath(cwd, `dist/${name}.json`), JSON.stringify(js));
+    writeFileSync(
+      resolvePath(cwd, `dist/${name}.json`),
+      JSON.stringify(js, null, 2)
+    );
   });
 
   writeFileSync(

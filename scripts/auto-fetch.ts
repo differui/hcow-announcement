@@ -82,7 +82,10 @@ async function main() {
 
       announcements.push(announcement);
       writeFileSync(resolvePath(cwd, `assets/${name}`), content);
-      writeFileSync(resolvePath(cwd, `dist/${name}.json`), JSON.stringify(js));
+      writeFileSync(
+        resolvePath(cwd, `dist/${name}.json`),
+        JSON.stringify(js, null, 2)
+      );
     }
   }
 

@@ -11,6 +11,7 @@ export enum Region {
   CangNan = '苍南县',
   WenCheng = '文成县',
   TaiShun = '泰顺县',
+  ZheNan = '浙南产业集聚区',
 }
 
 export enum Gender {
