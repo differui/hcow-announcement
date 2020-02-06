@@ -1,12 +1,13 @@
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve as resolvePath } from 'path';
 import { Announcement } from '../src/collectors/Announcement';
+import { dateStr } from '../src/helpers';
 
 async function main() {
   const cwd = process.cwd();
-  const fileNames = readdirSync(resolvePath(cwd, 'src/assets/'));
+  const fileNames = readdirSync(resolvePath(cwd, 'assets/'));
   const files = fileNames.map(name =>
-    readFileSync(resolvePath(cwd, `src/assets/${name}`)).toString('utf-8')
+    readFileSync(resolvePath(cwd, `assets/${name}`)).toString('utf-8')
   );
 
   const announcements = files.map(content => {
@@ -20,20 +21,17 @@ async function main() {
     const validateMessage = announcement.validate();
 
     if (validateMessage) {
-      throw validateMessage;
+      console.warn(`WARN: ${validateMessage}`);
     }
 
     const js = announcement.toJS();
     const date = js.stastistic.date;
-    const name = `${date.getFullYear()}-${date.getMonth() +
-      1}-${date.getDate()}`;
-
+    
     writeFileSync(
-      resolvePath(cwd, `dist/${name}.json`),
+      resolvePath(cwd, `dist/${dateStr(date)}.json`),
       JSON.stringify(js, null, 2)
     );
   });
-
   writeFileSync(
     resolvePath(cwd, 'dist/summary.json'),
     JSON.stringify(announcements)

@@ -4,6 +4,7 @@ import { get } from 'http';
 import { load } from 'cheerio';
 import { scheduleJob } from 'node-schedule';
 import { Announcement } from '../src/collectors/Announcement';
+import { dateStr } from '../src/helpers';
 
 const PER_MINUTE = '30 * * * * *';
 const PER_HOUR = '30 1 * * * *';
@@ -76,14 +77,11 @@ async function main() {
       // write to file
       const js = announcement.toJS();
       const date = js.stastistic.date;
-      const name = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
       announcements.push(announcement);
-      writeFileSync(resolvePath(cwd, `assets/${name}`), content);
+      writeFileSync(resolvePath(cwd, `assets/${dateStr(date)}`), content);
       writeFileSync(
-        resolvePath(cwd, `dist/${name}.json`),
+        resolvePath(cwd, `dist/${dateStr(date)}.json`),
         JSON.stringify(js, null, 2)
       );
     }

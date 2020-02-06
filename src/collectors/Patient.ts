@@ -1,159 +1,266 @@
-import { Region, Gender } from '../enums';
+import {
+  Region,
+  Gender,
+  Source,
+  Symptom,
+  ContactBy,
+  DepartureFrom,
+} from '../enums';
 import { Collector } from '../type';
+import { cut } from '../services/JieBa';
 
 export class Patient extends Collector {
   private name: string;
   private age: number;
-  private gender?: Gender;
+  private arriveAt: Date;
+  private departureFrom: string;
+  private gender: Gender;
   private region: Region;
-  private symptom: string[];
-  private startAt: Date;
+  private source: Source;
+  private symptom: Symptom[] = [];
+  private symptomStartAt: Date;
   private temperature?: number;
-  private fromWuHan: boolean;
-  private haveNotBeenToWuHan: boolean;
-  private fromOutside: boolean;
-  private hasVisitInTimeMarket: boolean;
-  private hasContactFromWuHan: boolean;
-  private hasContactConfirmedCase: boolean;
-  private hasContactSuspectedCase: boolean;
 
-  private parseAge(fragment: string) {
-    return parseInt(fragment) || undefined;
+  private parseGendar(token: string) {
+    if (token.includes('男')) {
+      return Gender.Male;
+    }
+    if (token.includes('女')) {
+      return Gender.Female;
+    }
+    throw new Error(`invalid token ${token}`);
   }
 
-  private parseGender(fragment: string) {
-    switch (fragment) {
-      case '男':
-        return Gender.Male;
-      case '女':
-        return Gender.Female;
-      default:
-        return undefined;
+  private parseAge(token: string) {
+    const matched = token.match(/(\d+)岁/);
+
+    if (matched) {
+      return parseInt(matched[1]) || undefined;
+    }
+    throw new Error(`invalid token ${token}`);
+  }
+
+  private parseRegion(token: string) {
+    if (Object.values(Region).includes(token as Region)) {
+      return (token as any) as Region;
+    }
+    return Region.不明;
+  }
+
+  private parseDate(token: string) {
+    const [_, year, month, day] = token.match(/(\d+年)?(\d+)月(\d+)日/) ?? [];
+
+    if (month && day) {
+      return new Date(
+        parseInt(year || '2020'),
+        parseInt(month) + 1,
+        parseInt(day)
+      );
     }
   }
 
-  private parseRegion(fragment: string) {
-    if (fragment.includes('鹿城')) {
-      return Region.LuCheng;
-    }
-    if (fragment.includes('瓯海')) {
-      return Region.OuHai;
-    }
-    if (fragment.includes('龙湾')) {
-      return Region.LongWan;
-    }
-    if (fragment.includes('洞头')) {
-      return Region.DongTou;
-    }
-    if (fragment.includes('乐清')) {
-      return Region.YueQing;
-    }
-    if (fragment.includes('瑞安')) {
-      return Region.RuiAn;
-    }
-    if (fragment.includes('龙港')) {
-      return Region.LongGang;
-    }
-    if (fragment.includes('永嘉')) {
-      return Region.YongJia;
-    }
-    if (fragment.includes('平阳')) {
-      return Region.PingYang;
-    }
-    if (fragment.includes('苍南')) {
-      return Region.CangNan;
-    }
-    if (fragment.includes('文成')) {
-      return Region.WenCheng;
-    }
-    if (fragment.includes('泰顺')) {
-      return Region.TaiShun;
-    }
-    if (fragment.includes('浙南产业集聚区')) {
-      return Region.TaiShun;
-    }
-    return undefined;
-  }
+  private parseTemperature(token: string) {
+    const [temperature] = token.match(/(\d+.\d+)度/) ?? [];
 
-  private parseSymptom(fragment: string) {
-    return fragment.split(/、|和|伴/).map(s => s.replace(/(?:症状|等)/g, ''));
-  }
-
-  private parseStartAt(year: string, month: string, date: string) {
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(date));
-  }
-
-  private parseTemperature(fragment: string) {
-    return parseFloat(fragment);
-  }
-
-  public parse(fragment: string) {
-    const age = fragment.match(/(\d+)岁/);
-    const gender = fragment.match(/，(男|女)性?，?\d/);
-    const region = fragment.match(/，现住(.*?)，/);
-    const symptom = fragment.match(/(?:出现|发病，)(.*?)，/);
-    const startAt = fragment.match(
-      /(\d{4}年)?(\d+)月(\d+)日[早中晚]?(?:出现|发病)/
-    );
-    const temperature = fragment.match(/([3|4]\d\.\d+)℃?/);
-    const fromWuHan = fragment.match(
-      /(?:[自从]武汉|武汉返?回|离开武汉|武汉人)/
-    );
-    const haveNotBeenToWuHan = fragment.match(/无武汉(?:外出|旅游|旅居)史/);
-    const fromOutside = fragment.match(
-      /(来|返?回)(?:温州?|鹿城|瓯海|龙湾|洞头|乐清|瑞安|龙港|永嘉|平阳|苍南|文成|泰顺)/
-    );
-    const hasVisitInTimeMarket = fragment.match(/银泰/);
-    const hasContactFromWuHan = fragment.match(
-      /(与|同)武汉(回乡|回温|返乡)人员有接触史/
-    );
-    const hasContactConfirmedCase = fragment.match(
-      /(与|有|为)确诊病[例|人](的.+|有?(?:密切)?接触史|共同居住史)/
-    );
-    const hasContactSuspectedCase = fragment.match(
-      /(与|有)疑似病[例|人]有?(密切)?接触史/
-    );
-
-    this.age = age ? this.parseAge(age[1]) : undefined;
-    this.gender = gender ? this.parseGender(gender[1]) : undefined;
-    this.region = region ? this.parseRegion(region[1]) : undefined;
-    this.symptom = symptom ? this.parseSymptom(symptom[1]) : [];
-    this.startAt = startAt
-      ? this.parseStartAt(startAt[1] ?? '2020', startAt[2], startAt[3])
-      : undefined;
-    this.temperature = temperature
-      ? this.parseTemperature(temperature[1])
-      : undefined;
-    this.fromWuHan = !!fromWuHan;
-    this.haveNotBeenToWuHan = !!haveNotBeenToWuHan;
-    this.fromOutside = !!fromOutside;
-    this.fromOutside = !!fromOutside;
-    this.hasContactFromWuHan = !!hasContactFromWuHan;
-    this.hasVisitInTimeMarket = !!hasVisitInTimeMarket;
-    this.hasContactConfirmedCase = !!hasContactConfirmedCase;
-    this.hasContactSuspectedCase = !!hasContactSuspectedCase;
+    if (temperature) {
+      return parseFloat(temperature);
+    }
   }
 
   public validate() {
     return '';
   }
 
+  public parse(fragment: string) {
+    const tokens = cut(fragment);
+
+    const context: {
+      from: string;
+      to: string;
+      date: Date;
+      positive: boolean;
+    } = {
+      from: '',
+      to: '',
+      date: null,
+      positive: true,
+    };
+
+    const peekNextToken = (at: number) => {
+      const nextAt = at + 1;
+      return nextAt < tokens.length ? tokens[nextAt] : undefined;
+    };
+    const peekRestTokens = (
+      start: number,
+      callback: (token: string) => boolean
+    ) => {
+      let start_ = start;
+
+      while (peekNextToken(start_)) {
+        if (callback(peekNextToken(start_))) {
+          break;
+        }
+        start_ += 1;
+      }
+    };
+    const peekPreviousToken = (at: number) => {
+      const previousAt = at - 1;
+
+      return previousAt > 0 ? tokens[previousAt] : undefined;
+    };
+
+    this.gender = this.parseGendar(tokens[0]);
+    this.age = this.parseAge(tokens[1]);
+    this.region = this.parseRegion(tokens[2]);
+
+    for (const [index, token] of tokens.entries()) {
+      if (token === '有') {
+        context.positive = true;
+        continue;
+      } else if (token === '无') {
+        context.positive = false;
+        continue;
+      } else if (token === '从') {
+        if (
+          Object.values(DepartureFrom).includes(
+            peekNextToken(index) as DepartureFrom
+          )
+        ) {
+          context.from = peekNextToken(index);
+          continue;
+        }
+      }
+
+      //#region date
+      {
+        const date = this.parseDate(token);
+
+        if (date) {
+          context.date = date;
+          continue;
+        }
+      }
+      //#endregion
+
+      //#region from
+      if (
+        token === '到' &&
+        ['温州', ...Object.values(Region)].includes(peekNextToken(index)) &&
+        (Object.values(DepartureFrom).includes(
+          peekPreviousToken(index) as DepartureFrom
+        ) ||
+          context.from)
+      ) {
+        if (context.date) {
+          this.arriveAt = context.date;
+        }
+        this.departureFrom = peekPreviousToken(index);
+        continue;
+      }
+      //#endregion
+
+      //#region temperature
+      {
+        const temperature = this.parseTemperature(token);
+
+        if (temperature) {
+          this.temperature = temperature;
+          continue;
+        }
+      }
+      //#endregion
+
+      //#region symptom
+      {
+        const token_ = (token as any) as Symptom;
+
+        if (
+          context.positive &&
+          Object.values(Symptom).includes(token as Symptom) &&
+          !this.symptom.includes(token_)
+        ) {
+          if (context.date && !this.symptomStartAt) {
+            this.symptomStartAt = context.date;
+          }
+          this.symptom.push(token_);
+          continue;
+        }
+      }
+      //#endregion
+
+      //#region source
+      {
+        switch (token) {
+          case '银泰世贸店':
+            if (peekNextToken(index) === ContactBy.Shopping) {
+              this.source = Source.ShoppingInTimeMarket;
+            } else {
+              this.source = Source.WorkingInTimeMarket;
+            }
+            break;
+          case Source.ContactConfirmedCase:
+            peekRestTokens(index, nextToken => {
+              if (Object.values(ContactBy).includes(nextToken as ContactBy)) {
+                this.source = Source.ContactConfirmedCase;
+                return true;
+              }
+              return false;
+            });
+            break;
+          case Source.ContactSuspectedCase:
+            peekRestTokens(index, nextToken => {
+              if (Object.values(ContactBy).includes(nextToken as ContactBy)) {
+                this.source = Source.ContactSuspectedCase;
+                return true;
+              }
+              return false;
+            });
+            break;
+          case Source.ContactIsolatedCase:
+            peekRestTokens(index, nextToken => {
+              if (Object.values(ContactBy).includes(nextToken as ContactBy)) {
+                this.source = Source.ContactIsolatedCase;
+                return true;
+              }
+              return false;
+            });
+            break;
+          case Source.ContactReturnees:
+            peekRestTokens(index, nextToken => {
+              if (Object.values(ContactBy).includes(nextToken as ContactBy)) {
+                this.source = Source.ContactReturnees;
+                return true;
+              }
+              return false;
+            });
+            break;
+          case '感染来源':
+            switch (peekNextToken(index)) {
+              case Source.UnderInvestigation:
+                this.source = Source.UnderInvestigation;
+                break;
+              case Source.UnKnown:
+                this.source = Source.UnKnown;
+                break;
+            }
+            break;
+        }
+      }
+      //#endregion
+    }
+  }
+
   public toJS() {
     return {
-      name: this.name,
       age: this.age,
       gender: this.gender,
       region: this.region,
-      symptom: this.symptom,
-      startAt: this.startAt,
-      haveNotBeenToWuHan: this.haveNotBeenToWuHan,
       temperature: this.temperature,
-      fromWuHan: this.fromWuHan,
-      fromOutside: this.fromOutside,
-      hasContactFromWuHan: this.hasContactFromWuHan,
-      hasVisitInTimeMarket: this.hasVisitInTimeMarket,
-      hasContactConfirmedCase: this.hasContactConfirmedCase,
-      hasContactSuspectedCase: this.hasContactSuspectedCase,
+      source: this.source,
+      symptom: this.symptom,
+      symptomStartAt: this.symptomStartAt,
+      arriveAt: this.arriveAt,
+      departureFrom: this.departureFrom,
     };
   }
 }
