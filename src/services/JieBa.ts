@@ -3,13 +3,13 @@ import jieba from 'nodejieba';
 
 const PreprocessMap = {
   // miscut by jieba
-  曾: '曾，', // 曾在武 汉
-  日: '日，', // 日出 现..
-  无: '无，', // 无胃 寒
-  出现: '出现，', // 出 现有
-  湖南: '湖南，', // 湖 南回
-  感染来源: '感染来源，',
-  瑞安市: '瑞安市，',
+  曾: `曾_`, // 曾在武 汉
+  日: `日_`, // 日出 现..
+  无: `无_`, // 无胃 寒
+  出现: `出现_`, // 出 现有
+  湖南: `湖南_`, // 湖 南回
+  感染来源: `感染来源_`,
+  瑞安市: `瑞安市_`,
 
   // punctuations
   ',': '',
@@ -61,7 +61,7 @@ const PreprocessMap = {
   出出现: '出现',
 };
 
-const TokenMap = {
+const SynonymsMap = {
   男性: '男',
   女性: '女',
   温: '温州',
@@ -104,6 +104,7 @@ const TokenMap = {
   聚餐: '聚餐史',
   '有.+': '有',
   '无.+': '无',
+  没有: '无',
   荆门市: '荆门',
   武汉市: '武汉',
   温州市: '温州',
@@ -124,7 +125,7 @@ const TokenMap = {
   世贸店: '',
 };
 
-const PostprocessSet: string[] = [];
+const PostprocessSet: string[] = ['_'];
 
 jieba.load({
   userDict: resolvePath(process.cwd(), './src/dicts/user.utf8'),
@@ -144,7 +145,7 @@ export function cut(fragment: string) {
       if (new RegExp(`^(?:${PostprocessSet.join('|')})$`).test(f)) {
         return;
       }
-      for (const [key, value] of Object.entries(TokenMap)) {
+      for (const [key, value] of Object.entries(SynonymsMap)) {
         if (new RegExp(`^${key}$`).test(f)) {
           return value;
         }

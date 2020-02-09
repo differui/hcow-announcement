@@ -10,25 +10,24 @@ import { Collector } from '../type';
 import { cut } from '../services/JieBa';
 
 export class Patient extends Collector {
-  private name: string;
+  private name?: string;
   private age: number;
-  private arriveAt: Date;
-  private departureFrom: string;
+  private arriveAt?: Date;
+  private departureFrom?: string;
   private gender: Gender;
-  private region: Region;
-  private source: Source;
+  private region: Region = Region.不明;
+  private source?: Source;
   private symptom: Symptom[] = [];
-  private symptomStartAt: Date;
+  private symptomStartAt?: Date;
   private temperature?: number;
 
-  private parseGendar(token: string) {
+  private parseGender(token: string) {
     if (token.includes('男')) {
       return Gender.Male;
     }
     if (token.includes('女')) {
       return Gender.Female;
     }
-    throw new Error(`invalid token ${token}`);
   }
 
   private parseAge(token: string) {
@@ -37,14 +36,12 @@ export class Patient extends Collector {
     if (matched) {
       return parseInt(matched[1]) || undefined;
     }
-    throw new Error(`invalid token ${token}`);
   }
 
   private parseRegion(token: string) {
     if (Object.values(Region).includes(token as Region)) {
       return (token as any) as Region;
     }
-    return Region.不明;
   }
 
   private parseDate(token: string) {
@@ -53,7 +50,7 @@ export class Patient extends Collector {
     if (month && day) {
       return new Date(
         parseInt(year || '2020'),
-        parseInt(month) + 1,
+        parseInt(month) - 1,
         parseInt(day)
       );
     }
@@ -67,13 +64,7 @@ export class Patient extends Collector {
     }
   }
 
-  public validate() {
-    return '';
-  }
-
-  public parse(fragment: string) {
-    const tokens = cut(fragment);
-
+  private parsePart(part: string) {
     const context: {
       from: string;
       to: string;
@@ -85,7 +76,9 @@ export class Patient extends Collector {
       date: null,
       positive: true,
     };
+    const tokens = cut(part);
 
+    //#region  helpers
     const peekNextToken = (at: number) => {
       const nextAt = at + 1;
       return nextAt < tokens.length ? tokens[nextAt] : undefined;
@@ -108,10 +101,7 @@ export class Patient extends Collector {
 
       return previousAt > 0 ? tokens[previousAt] : undefined;
     };
-
-    this.gender = this.parseGendar(tokens[0]);
-    this.age = this.parseAge(tokens[1]);
-    this.region = this.parseRegion(tokens[2]);
+    //#endregion
 
     for (const [index, token] of tokens.entries()) {
       if (token === '有') {
@@ -130,6 +120,39 @@ export class Patient extends Collector {
           continue;
         }
       }
+
+      //#region gender
+      {
+        const gender = this.parseGender(token);
+
+        if (gender) {
+          this.gender = gender;
+          continue;
+        }
+      }
+      //#endregion
+
+      //#region age
+      {
+        const age = this.parseAge(token);
+
+        if (age) {
+          this.age = age;
+          continue;
+        }
+      }
+      //#endregion
+
+      //#region region
+      {
+        const region = this.parseRegion(token);
+
+        if (region) {
+          this.region = region;
+          continue;
+        }
+      }
+      //#endregion
 
       //#region date
       {
@@ -250,8 +273,21 @@ export class Patient extends Collector {
     }
   }
 
+  public validate() {
+    return '';
+  }
+
+  public parse(fragment: string) {
+    fragment
+      .split(/[，|。]/g)
+      .filter(Boolean)
+      .forEach(part => this.parsePart(part));
+    return this;
+  }
+
   public toJS() {
     return {
+      name: this.name,
       age: this.age,
       gender: this.gender,
       region: this.region,

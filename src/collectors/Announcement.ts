@@ -19,6 +19,7 @@ export class Announcement extends Collector {
         this.stastistic.parse(fragment);
       }
     });
+    return this;
   }
 
   public validate() {

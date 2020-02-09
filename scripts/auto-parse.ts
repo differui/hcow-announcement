@@ -10,12 +10,7 @@ async function main() {
     readFileSync(resolvePath(cwd, `assets/${name}`)).toString('utf-8')
   );
 
-  const announcements = files.map(content => {
-    const announcement = new Announcement();
-
-    announcement.parse(content);
-    return announcement;
-  });
+  const announcements = files.map(content => new Announcement().parse(content));
 
   announcements.forEach(announcement => {
     const validateMessage = announcement.validate();
@@ -26,7 +21,7 @@ async function main() {
 
     const js = announcement.toJS();
     const date = js.stastistic.date;
-    
+
     writeFileSync(
       resolvePath(cwd, `dist/${dateStr(date)}.json`),
       JSON.stringify(js, null, 2)
@@ -34,7 +29,7 @@ async function main() {
   });
   writeFileSync(
     resolvePath(cwd, 'dist/summary.json'),
-    JSON.stringify(announcements)
+    JSON.stringify(announcements, null, 2)
   );
 }
 

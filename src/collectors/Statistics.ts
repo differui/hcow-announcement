@@ -58,6 +58,7 @@ export class Statistics extends Collector {
       this.newSevereCount = this.parseCount(newSevereCount[1]);
     if (newConfirmedCount)
       this.newConfirmedCount = this.parseCount(newConfirmedCount[1]);
+    return this;
   }
 
   public validate() {

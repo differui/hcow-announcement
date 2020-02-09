@@ -31,6 +31,9 @@ export enum DepartureFrom {
   北京 = '北京',
   上海 = '上海',
   西安 = '西安',
+  贵州 = '贵州',
+
+  马尔代夫 = '马尔代夫',
 
   // cities in ZheJiang
   杭州 = '杭州',
@@ -38,6 +41,12 @@ export enum DepartureFrom {
   诸暨 = '诸暨',
   台州 = '台州',
   丽水 = '丽水',
+  湖州 = '湖州',
+  嘉兴 = '嘉兴',
+  绍兴 = '绍兴',
+  舟山 = '舟山',
+  金华 = '金华',
+  衢州 = '衢州',
 
   // cities in HuBei
   鄂州 = '鄂州',
@@ -59,10 +68,10 @@ export enum DepartureFrom {
 export enum Source {
   ShoppingInTimeMarket = '银泰世贸店购物',
   WorkingInTimeMarket = '银泰世贸店工作',
-  ContactReturnees = '接触返乡人员',
-  ContactConfirmedCase = '接触确诊病例',
-  ContactSuspectedCase = '接触疑似病例',
-  ContactIsolatedCase = '接触隔离病例',
+  ContactReturnees = '返乡人员',
+  ContactConfirmedCase = '确诊病例',
+  ContactSuspectedCase = '疑似病例',
+  ContactIsolatedCase = '隔离病例',
   UnderInvestigation = '调查中',
   UnKnown = '不明',
 }
