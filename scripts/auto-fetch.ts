@@ -92,7 +92,7 @@ async function main() {
     JSON.stringify(announcements)
   );
 
-  process.stdout.write(`job finished at ${new Date().toLocaleString()}`);
+  process.stdout.write(`job finished at ${new Date().toLocaleString()}\n`);
 }
 
 scheduleJob(PER_HOUR, main);
