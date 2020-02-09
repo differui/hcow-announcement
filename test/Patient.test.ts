@@ -19,7 +19,7 @@ test('source', () => {
     Source.ContactSuspectedCase
   );
   expect(patient.parse('与隔离病例有居住史').toJS().source).toBe(
-    Source.ContactIsolatedCase
+    Source.ContactQuarantinedCase
   );
   expect(patient.parse('有湖北回乡人员接触史').toJS().source).toBe(
     Source.ContactReturnees

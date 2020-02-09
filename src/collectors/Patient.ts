@@ -239,10 +239,10 @@ export class Patient extends Collector {
               return false;
             });
             break;
-          case Source.ContactIsolatedCase:
+          case Source.ContactQuarantinedCase:
             peekRestTokens(index, nextToken => {
               if (Object.values(ContactBy).includes(nextToken as ContactBy)) {
-                this.source = Source.ContactIsolatedCase;
+                this.source = Source.ContactQuarantinedCase;
                 return true;
               }
               return false;

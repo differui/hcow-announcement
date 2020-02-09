@@ -71,7 +71,7 @@ export enum Source {
   ContactReturnees = '返乡人员',
   ContactConfirmedCase = '确诊病例',
   ContactSuspectedCase = '疑似病例',
-  ContactIsolatedCase = '隔离病例',
+  ContactQuarantinedCase = '隔离病例',
   UnderInvestigation = '调查中',
   UnKnown = '不明',
 }
