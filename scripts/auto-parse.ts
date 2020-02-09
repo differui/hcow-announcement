@@ -24,12 +24,12 @@ async function main() {
 
     writeFileSync(
       resolvePath(cwd, `dist/${dateStr(date)}.json`),
-      JSON.stringify(js, null, 2)
+      JSON.stringify(js)
     );
   });
   writeFileSync(
     resolvePath(cwd, 'dist/summary.json'),
-    JSON.stringify(announcements, null, 2)
+    JSON.stringify(announcements)
   );
 }
 

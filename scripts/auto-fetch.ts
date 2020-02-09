@@ -82,7 +82,7 @@ async function main() {
       writeFileSync(resolvePath(cwd, `assets/${dateStr(date)}`), content);
       writeFileSync(
         resolvePath(cwd, `dist/${dateStr(date)}.json`),
-        JSON.stringify(js, null, 2)
+        JSON.stringify(js)
       );
     }
   }
