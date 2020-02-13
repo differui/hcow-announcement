@@ -34,7 +34,7 @@ async function fetchLinks(url: string) {
   while ((midResult = matchLinkRE.exec(content))) {
     const [_, link, title] = midResult;
 
-    if (/温州市新型冠状病毒感染的肺炎疫情通报/.test(title)) {
+    if (/肺炎疫情通报/.test(title)) {
       links.push(`${URL_HOST}${link}`);
     }
   }
@@ -71,7 +71,7 @@ async function main() {
       const validateMessage = announcement.validate();
 
       if (validateMessage) {
-        throw validateMessage;
+        console.warn(`WARN: ${validateMessage}`);
       }
 
       // write to file
